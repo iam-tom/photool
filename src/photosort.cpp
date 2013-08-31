@@ -35,6 +35,17 @@ int main(int argc, const char *argv[])
   supported_filetypes.push_back("PNG");
   supported_filetypes.push_back("png");
 
+  // apply filter operation
+
+  bool filter=false;
+  if(argc>2)
+  {
+    std::cout<<"filtering"<<std::endl;
+    filter = true;
+    int filter_val=(int)*argv[2];
+  }
+
+
 
   // copy content of directory to input files vector
   std::copy(boost::filesystem::directory_iterator(input_dir), boost::filesystem::directory_iterator(), std::back_inserter(input_files));
@@ -50,6 +61,37 @@ int main(int argc, const char *argv[])
  // if(!boost::filesystem::is_directory(d1))boost::filesystem::create_directory(d1);
  // if(!boost::filesystem::is_directory(d2))boost::filesystem::create_directory(d2);
  // if(!boost::filesystem::is_directory(d3))boost::filesystem::create_directory(d3);
+  std::vector<int>rating_list;
+  if(filter)
+  {
+  if(!boost::filesystem::is_regular(infofile_path))
+  {
+    std::cout<<"no filtering possible"<<std::endl;
+  }
+  else
+  {
+      cv::FileStorage fs(infofile_path.c_str(), cv::FileStorage::READ);
+      for(int i=0;i<input_files.size();i++)
+      {
+      std::string file=input_files[i].stem().c_str();
+      //TODO handle when image not in file
+      int rating=fs[file]["rating"];
+      rating_list.push_back(rating);
+      }
+      fs.release();
+  }
+  for(int p=0;p<rating_list.size();p++)
+  {
+    std::cout<<rating_list[p]<<std::endl;
+  }
+  }
+  else
+  {
+    for(int i=0;i<input_files.size();++i)
+    {
+      rating_list.push_back(100);
+    }
+  }
 
   ////processing loop
   std::cout<<input_dir<<std::endl;
@@ -68,10 +110,11 @@ int main(int argc, const char *argv[])
       //if (input_files[i].extension().compare(supported_filetypes[j])==0)known_ft=true;
       if (input_files[i].extension()==supported_filetypes[j])known_ft=true;
       }
-      std::cout<<known_ft<<std::endl;
-      if(known_ft)img_list.push_back(input_files[i]);
+      if(known_ft && rating_list[i]>2)img_list.push_back(input_files[i]);
     }
   }
+
+  
   cv::Size vsize=cv::Size(1366,768);
   Viewer viewer(vsize);
 
