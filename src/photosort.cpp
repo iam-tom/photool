@@ -27,6 +27,14 @@ int main(int argc, const char *argv[])
   
   boost::filesystem::path input_dir(argv[1]);
   std::vector<boost::filesystem::path> input_files;
+  boost::filesystem::path infofile_path=input_dir/"tags.xml";
+  std::vector<std::string>supported_filetypes;
+  // known filetypes
+  supported_filetypes.push_back(".JPG");
+  supported_filetypes.push_back("jpg");
+  supported_filetypes.push_back("PNG");
+  supported_filetypes.push_back("png");
+
 
   // copy content of directory to input files vector
   std::copy(boost::filesystem::directory_iterator(input_dir), boost::filesystem::directory_iterator(), std::back_inserter(input_files));
@@ -52,14 +60,27 @@ int main(int argc, const char *argv[])
   for(int i=0;i<input_files.size();i++)
   {
     if(boost::filesystem::is_directory(input_files[i]))continue;
-    else img_list.push_back(input_files[i]);
+    else 
+    {
+      bool known_ft=false;
+      for(int j=0;j<supported_filetypes.size();j++)
+      {
+      //if (input_files[i].extension().compare(supported_filetypes[j])==0)known_ft=true;
+      if (input_files[i].extension()==supported_filetypes[j])known_ft=true;
+      }
+      std::cout<<known_ft<<std::endl;
+      if(known_ft)img_list.push_back(input_files[i]);
+    }
   }
-  Viewer viewer;
+  cv::Size vsize=cv::Size(1366,768);
+  Viewer viewer(vsize);
 
-  boost::filesystem::path testpath="data/test.xml";
+  //boost::filesystem::path testpath="data/test.xml";
   viewer.load_image_list(img_list);
-  viewer.loadInfofile(testpath);
+  viewer.load_tag_list(infofile_path);
   viewer.run();
+  std::cout<<"intending to save list"<<std::endl;
+  viewer.save_tag_list(infofile_path);
 
 //--------------------------------------------------------------------------------
 //--------------------------------------------------------------------------------

@@ -29,7 +29,8 @@ class Viewer
     void run();
     bool load_image_list(std::vector<boost::filesystem::path>& img_list);
     void saveInfofile();
-    void loadInfofile(boost::filesystem::path& file);
+    void load_tag_list(boost::filesystem::path& file);
+    void save_tag_list(boost::filesystem::path& file);
 
     protected:
     void fit_img(cv::Mat& img,cv::Size& win_size);
@@ -43,6 +44,7 @@ class Viewer
     window prev_window_;
     window next_window_;
     std::vector<boost::filesystem::path> img_list_;
+    boost::filesystem::path tag_list_;
     cv::Mat curr_file_;
     cv::Mat prev_file_;
     cv::Mat next_file_;

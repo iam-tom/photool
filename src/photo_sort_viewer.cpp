@@ -26,9 +26,27 @@ Viewer::Viewer()
 }
 
 
-Viewer::Viewer(cv::Size&)
+Viewer::Viewer(cv::Size& vsize)
 {
-  std::cout<<"variable screen size not yet available"<<std::endl;
+  //std::cout<<"variable screen size not yet available"<<std::endl;
+  stop_file_=cv::imread("data/stop.png",-1);
+  curr_ctr_=0;
+  prev_ctr_=-1;
+  next_ctr_=1;
+
+  curr_window_.size=cv::Size(round(vsize.width/4),vsize.height);
+  curr_window_.name="CURRENT IMAGE";
+  curr_window_.pos=cv::Point2f(vsize.width/5,0);
+
+  prev_window_.size=cv::Size(round(vsize.width/4),round(vsize.height/2));
+  prev_window_.name="PREVIOUS IMAGE";
+  prev_window_.pos=cv::Point2f(1300,0);
+
+  next_window_.size=cv::Size(round(vsize.width/4),round(vsize.height/2));
+  next_window_.name="NEXT IMAGE";
+  next_window_.pos=cv::Point2f(1300,525);
+
+
 }
 
 bool Viewer::load_image_list(std::vector<boost::filesystem::path>& img_list)
@@ -55,7 +73,15 @@ void Viewer::run()
 }
 void Viewer::overlayRating(cv::Mat& img)
 {
-  std::string rating ="Rating: "+boost::lexical_cast<std::string>(rating_list_[curr_ctr_]);
+  std::string rating;
+  if(rating_list_[curr_ctr_]<0) 
+  {
+   rating ="Rating: - ";
+  }
+  else
+  {
+  rating ="Rating: "+boost::lexical_cast<std::string>(rating_list_[curr_ctr_]);
+  }
   int fontFace = cv::FONT_HERSHEY_PLAIN;
   double fontScale = 3;
   int thickness = 1;
@@ -155,16 +181,26 @@ void Viewer::navigate(NAV_CMD cmd)
     display(curr_file_,prev_file_,next_file_);
 }
 
-void Viewer::loadInfofile(boost::filesystem::path& file)
+void Viewer::load_tag_list(boost::filesystem::path& file)
 {
 
+  if(!boost::filesystem::is_regular(file))
+  {
+    std::cout<<"no tag file loading default ratings"<<std::endl;
+    rating_list_.resize(num_images_);
+    rating_list_.clear();
+    for(int i=0;i<num_images_;++i)
+       {
+         rating_list_[i]=-1;
+       }
+    return;
+  }
 
 //TODO make possible to load rating and other information to images in folder via infofile
 //TODO set cwd automatically and in combination with tags in info file avoid load filelistrating
 //TODO every file in file_list is searched for in xml - info loaded or default values set
 cv::FileStorage fs(file.c_str(), cv::FileStorage::READ);
 
-// first method: use (type) operator on FileNode.
 
 for(int i=0;i<num_images_;i++)
 {
@@ -178,14 +214,14 @@ fs.release();
 }
 
 
-void Viewer::saveInfofile()
+void Viewer::save_tag_list(boost::filesystem::path& file)
 {
 
   //TODO use cv Filestorage 
   //TODOGENERIC PATH
   //list of images
 cv::FileStorage fs;
-fs.open("data/test.xml", cv::FileStorage::WRITE);
+fs.open(file.c_str(), cv::FileStorage::WRITE);
 // Check if we actually created the file
 if(fs.isOpened())
 {
@@ -207,7 +243,7 @@ if(fs.isOpened())
 void Viewer::prepareExit()
 {
   //TODO: dump xml file with ratings and so on..
-  saveInfofile();
+  //saveInfofile();
   exit(1);
 }
 void Viewer::parseKey(int& key)
@@ -267,6 +303,12 @@ void Viewer::parseKey(int& key)
       {
         prepareExit();
       }
+    default:
+      {
+        std::cout<<"KEY NOT DEFINED"<<std::endl;
+        break;
+      }
+
   }
 }
 void Viewer::fit_img(cv::Mat& img,cv::Size& win_size)
