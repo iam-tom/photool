@@ -80,10 +80,6 @@ int main(int argc, const char *argv[])
       }
       fs.release();
   }
-  for(int p=0;p<rating_list.size();p++)
-  {
-    std::cout<<rating_list[p]<<std::endl;
-  }
   }
   else
   {

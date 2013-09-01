@@ -147,7 +147,7 @@ void Viewer::navigate(NAV_CMD cmd)
 
           prev_file_=curr_file_;
           curr_file_=next_file_;
-          if(next_ctr_>num_images_)
+          if(next_ctr_=num_images_)
           {
             next_file_=stop_file_;
           }
@@ -244,7 +244,7 @@ void Viewer::prepareExit()
 {
   //TODO: dump xml file with ratings and so on..
   //saveInfofile();
-  exit(1);
+  //exit(1);
 }
 void Viewer::parseKey(int& key)
 {
@@ -301,7 +301,8 @@ void Viewer::parseKey(int& key)
       // ESC //////
     case 1048603:
       {
-        prepareExit();
+        std::cout<<"EXIT"<<std::endl;
+        //prepareExit();
       }
     default:
       {
