@@ -141,38 +141,55 @@ void Viewer::navigate(NAV_CMD cmd)
     {
       case NEXT:
         {
-          curr_ctr_++;
-          prev_ctr_++;
-          next_ctr_++;
 
-          prev_file_=curr_file_;
-          curr_file_=next_file_;
-          if(next_ctr_=num_images_)
+          if(next_ctr_==num_images_)
           {
+          }
+          else if(next_ctr_==num_images_-1)
+          {
+            prev_file_=curr_file_;
+            curr_file_=next_file_;
             next_file_=stop_file_;
+            curr_ctr_++;
+            prev_ctr_++;
+            next_ctr_++;
+          
           }
           else
           {
+            curr_ctr_++;
+            prev_ctr_++;
+            next_ctr_++;
             std::string next_path=img_list_[next_ctr_].c_str();
+            prev_file_=curr_file_;
+            curr_file_=next_file_;
             next_file_=cv::imread(next_path,-1);
           }
             break;
         }
       case PREV:
         {
-          curr_ctr_--;
-          prev_ctr_--;
-          next_ctr_--;
 
-          next_file_=curr_file_;
-          curr_file_=prev_file_;
           if(prev_ctr_<0)
           {
+          }
+          else if(prev_ctr_==0)
+          {
+            next_file_=curr_file_;
+            curr_file_=prev_file_;
             prev_file_=stop_file_;
+            curr_ctr_--;
+            prev_ctr_--;
+            next_ctr_--;
           }
           else
           {
+            curr_ctr_--;
+            prev_ctr_--;
+            next_ctr_--;
             std::string prev_path=img_list_[prev_ctr_].c_str();
+            next_file_=curr_file_;
+            curr_file_=prev_file_;
             prev_file_=cv::imread(prev_path,-1);
           }
             break;

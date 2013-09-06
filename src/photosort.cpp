@@ -40,9 +40,9 @@ int main(int argc, const char *argv[])
   bool filter=false;
   if(argc>2)
   {
-    std::cout<<"filtering"<<std::endl;
     filter = true;
-    int filter_val=(int)*argv[2];
+    int filter_val=atoi(*argv[2]);
+    std::cout<<"filtering:"<<filter_val<<std::endl;
   }
 
 
