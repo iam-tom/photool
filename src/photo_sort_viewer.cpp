@@ -54,6 +54,8 @@ bool Viewer::load_image_list(std::vector<boost::filesystem::path>& img_list)
 img_list_=img_list;
 num_images_=(int)img_list.size();
 rating_list_.resize(num_images_,0);
+rotation_list_.resize(num_images_,0);
+filter_list_.resize(num_images_,false);
 return true;
 }
 
@@ -88,13 +90,52 @@ void Viewer::overlayRating(cv::Mat& img)
   cv::Point textOrg(0, img.rows-50);
   cv::putText(img, rating, textOrg, fontFace, fontScale, cv::Scalar::all(255), thickness,1);
 }
+void Viewer::applyRotation(cv::Mat& img,int& ctr)
+{
+  switch( rotation_list_[ctr])
+  {
+    case 0:
+      {
+        //std::cout<<"no rotation"<<std::endl;
+        break;
+      }
+    case 1:
+      {
+        //std::cout<<"cw 90"<<std::endl;
+        cv::transpose(img,img);
+        cv::flip(img,img,1);
+        break;
+      }
+    case -1:
+      {
+        //std::cout<<"ccw 90"<<std::endl;
+        cv::transpose(img,img);
+        cv::flip(img,img,0);
+        break;
+      }
+    default:
+      {
+        std::cout<<"rotation value not defined"<<std::endl;
+      }
+
+
+      return;
+
+  }
+}
+
 void Viewer::display(cv::Mat curr_file,cv::Mat prev_file,cv::Mat next_file)
 {
+
 
     fit_img(curr_file,curr_window_.size);
     fit_img(prev_file,prev_window_.size);
     fit_img(next_file,next_window_.size);
 
+
+    applyRotation(curr_file,curr_ctr_);
+    applyRotation(prev_file,prev_ctr_);
+    applyRotation(next_file,next_ctr_);
 
     overlayRating(curr_file);
 
@@ -129,13 +170,35 @@ void Viewer::display(cv::Mat curr_file,cv::Mat prev_file,cv::Mat next_file)
 
 }
 
+void Viewer::rotate(Viewer::CMD cmd)
+{
+  switch(cmd)
+  {
+    case ROT_CW:
+      {
+        if(rotation_list_[curr_ctr_]!=1)rotation_list_[curr_ctr_]+=1;
+        break;
+      }
+    case ROT_CCW:
+      {
+        if(rotation_list_[curr_ctr_]!=-1)rotation_list_[curr_ctr_]-=1;
+        break;
+      }
+    default:
+      {
+        std::cout<<"invalid command"<<std::endl;
+        break;
+      }
+  }
+    display(curr_file_,prev_file_,next_file_);
+}
 void Viewer::rate(int rating)
 {
   rating_list_[curr_ctr_]=rating;
   //std::cout<<"RATING "<<rating_list_[curr_ctr_]<<std::endl;
   display(curr_file_,prev_file_,next_file_);
 }
-void Viewer::navigate(NAV_CMD cmd)
+void Viewer::navigate(CMD cmd)
 {
     switch(cmd)
     {
@@ -150,20 +213,43 @@ void Viewer::navigate(NAV_CMD cmd)
             prev_file_=curr_file_;
             curr_file_=next_file_;
             next_file_=stop_file_;
-            curr_ctr_++;
-            prev_ctr_++;
+
+            prev_ctr_=curr_ctr_;
+            curr_ctr_=next_ctr_;
             next_ctr_++;
-          
+
           }
           else
           {
-            curr_ctr_++;
-            prev_ctr_++;
+            prev_ctr_=curr_ctr_;
+            curr_ctr_=next_ctr_;
             next_ctr_++;
-            std::string next_path=img_list_[next_ctr_].c_str();
-            prev_file_=curr_file_;
-            curr_file_=next_file_;
-            next_file_=cv::imread(next_path,-1);
+
+            // filter images
+            std::string next_path;
+            while(next_ctr_<num_images_)
+            {
+              if(filter_list_[next_ctr_]==false)
+              {
+                next_path=img_list_[next_ctr_].c_str();
+                prev_file_=curr_file_;
+                curr_file_=next_file_;
+                next_file_=cv::imread(next_path,-1);
+                break;
+              }
+              else next_ctr_++;
+              if(next_ctr_==num_images_-1)
+              {
+                prev_file_=curr_file_;
+                curr_file_=next_file_;
+                next_file_=stop_file_;
+
+                prev_ctr_=curr_ctr_;
+                curr_ctr_=next_ctr_;
+                next_ctr_++;
+                break;
+              }
+            }
           }
             break;
         }
@@ -178,23 +264,52 @@ void Viewer::navigate(NAV_CMD cmd)
             next_file_=curr_file_;
             curr_file_=prev_file_;
             prev_file_=stop_file_;
-            curr_ctr_--;
+
+            next_ctr_=curr_ctr_;
+            curr_ctr_=prev_ctr_;
             prev_ctr_--;
-            next_ctr_--;
           }
           else
           {
-            curr_ctr_--;
+            next_ctr_=curr_ctr_;
+            curr_ctr_=prev_ctr_;
             prev_ctr_--;
-            next_ctr_--;
-            std::string prev_path=img_list_[prev_ctr_].c_str();
-            next_file_=curr_file_;
-            curr_file_=prev_file_;
-            prev_file_=cv::imread(prev_path,-1);
+
+            // filter images
+            std::string prev_path;
+            while(prev_ctr_>0)
+            {
+              if(filter_list_[prev_ctr_]==false)
+              {
+                prev_path=img_list_[prev_ctr_].c_str();
+                next_file_=curr_file_;
+                curr_file_=prev_file_;
+                prev_file_=cv::imread(prev_path,-1);
+                break;
+              }
+              else prev_ctr_--;
+              if(prev_ctr_==0)
+              {
+                next_file_=curr_file_;
+                curr_file_=prev_file_;
+                prev_file_=stop_file_;
+
+                next_ctr_=curr_ctr_;
+                curr_ctr_=prev_ctr_;
+                prev_ctr_--;
+                break;
+              }
+            }
           }
             break;
         }
     }
+    // display updated files
+    std::cout<<"PREV CTR="<<prev_ctr_<<std::endl;
+    std::cout<<"CURR CTR="<<curr_ctr_<<std::endl;
+    std::cout<<"NEXT CTR="<<next_ctr_<<std::endl;
+    std::cout<<"-----------------"<<std::endl;
+
     display(curr_file_,prev_file_,next_file_);
 }
 
@@ -204,11 +319,14 @@ void Viewer::load_tag_list(boost::filesystem::path& file)
   if(!boost::filesystem::is_regular(file))
   {
     std::cout<<"no tag file loading default ratings"<<std::endl;
+    rotation_list_.resize(num_images_);
+    rating_list_.clear();
     rating_list_.resize(num_images_);
     rating_list_.clear();
     for(int i=0;i<num_images_;++i)
        {
          rating_list_[i]=-1;
+         rotation_list_[i]=0;
        }
     return;
   }
@@ -225,11 +343,57 @@ std::string file=img_list_[i].stem().c_str();
 //TODO handle when image not in file
 int rating=fs[file]["rating"];
 rating_list_[i]=rating;
+int rotation=fs[file]["rotation"];
+rotation_list_[i]=rotation;
 }
 fs.release();
 
 }
 
+void Viewer::filter(int val)
+{
+  for(int i=0;i<num_images_;++i)
+  {
+    if (rating_list_[i]<val)filter_list_[i]=true;
+    std::cout<<filter_list_[i]<<std::endl;
+  }
+  //set counter to appropriate values
+  prev_ctr_=-1;
+  bool curr_ctr_set, next_ctr_set;
+  curr_ctr_set=false;
+  next_ctr_set=false;
+  for(int i=0;i<num_images_;i++)
+  {
+    if(filter_list_[i]==false)
+    {
+      curr_ctr_=i;
+      curr_ctr_set=true;
+      break;
+    }
+  }
+  if(curr_ctr_set)
+  {
+    for(int i=curr_ctr_+1 ;i<num_images_;i++)
+    {
+      if(filter_list_[i]==false)
+      {
+        next_ctr_=i;
+        next_ctr_set=true;
+        break;
+      }
+    }
+  }
+
+  std::cout<<"----------------"<<std::endl;
+  std::cout<<curr_ctr_<<std::endl;
+  std::cout<<next_ctr_<<std::endl;
+  if(!curr_ctr_set || !next_ctr_set)
+  {
+    std::cout<<"FILTERING yields invalid file list - exiting"<<std::endl;
+    exit(1);
+  }
+
+}
 
 void Viewer::save_tag_list(boost::filesystem::path& file)
 {
@@ -248,6 +412,7 @@ if(fs.isOpened())
     {
         fs << img_list_[i].stem().c_str()<<"{";
         fs <<"rating"<<rating_list_[i];
+        fs <<"rotation"<<rotation_list_[i];
         fs <<"id_no"<<9999;
         fs <<"id_name"<<"Unknown";
         fs<<"}";
@@ -265,6 +430,7 @@ void Viewer::prepareExit()
 }
 void Viewer::parseKey(int& key)
 {
+  //std::cout<<key<<std::endl;
 
   // swich "callbacks"
   switch( key)
@@ -282,6 +448,17 @@ void Viewer::parseKey(int& key)
         break;
       }
 
+    case 1113938:
+      {
+
+        rotate(Viewer::ROT_CW);
+        break;
+      }
+    case 1113940:
+      {
+        rotate(Viewer::ROT_CCW);
+        break;
+      }
 
     case 1048625:
       {
@@ -346,5 +523,12 @@ void Viewer::fit_img(cv::Mat& img,cv::Size& win_size)
      float s =(float)limit/longside;
 
      cv::resize(img,img,cv::Size(round(img.cols*s),round(img.rows*s)));
+
+}
+void Viewer::setStart(int no)
+{
+curr_ctr_=no;
+prev_ctr_=no-1;
+next_ctr_=no+1;
 
 }

@@ -11,10 +11,12 @@
 class Viewer
 {
   public:
-    enum NAV_CMD
+    enum CMD
     {
       NEXT,
-      PREV
+      PREV,
+      ROT_CW,
+      ROT_CCW,
     };
     struct window{
       std::string name;
@@ -31,14 +33,18 @@ class Viewer
     void saveInfofile();
     void load_tag_list(boost::filesystem::path& file);
     void save_tag_list(boost::filesystem::path& file);
+    void filter(int val);
+    void setStart(int no);
 
     protected:
     void fit_img(cv::Mat& img,cv::Size& win_size);
     void display(cv::Mat curr_img,cv::Mat prev_img,cv::Mat next_img);
     void parseKey(int& key);
-    void navigate(NAV_CMD cmd);
+    void navigate(CMD cmd);
     void rate(int rating);
     void overlayRating(cv::Mat& img);
+    void applyRotation(cv::Mat& img,int& ctr);
+    void rotate(Viewer::CMD cmd);
     void prepareExit();
     window curr_window_;
     window prev_window_;
@@ -58,4 +64,6 @@ class Viewer
 
 
     std::vector<int>rating_list_;
+    std::vector<int>rotation_list_;
+    std::vector<bool>filter_list_;
 };
