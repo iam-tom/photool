@@ -26,7 +26,7 @@ Viewer::Viewer()
 }
 
 
-Viewer::Viewer(cv::Size& vsize)
+Viewer::Viewer(cv::Size& vsize,Viewer::MODE mode)
 {
   //std::cout<<"variable screen size not yet available"<<std::endl;
   stop_file_=cv::imread("data/stop.png",-1);
@@ -34,17 +34,49 @@ Viewer::Viewer(cv::Size& vsize)
   prev_ctr_=-1;
   next_ctr_=1;
 
-  curr_window_.size=cv::Size(round(vsize.width/4),vsize.height);
-  curr_window_.name="CURRENT IMAGE";
-  curr_window_.pos=cv::Point2f(vsize.width/5,0);
 
-  prev_window_.size=cv::Size(round(vsize.width/4),round(vsize.height/2));
-  prev_window_.name="PREVIOUS IMAGE";
-  prev_window_.pos=cv::Point2f(1300,0);
+  switch (mode)
+  {
+    case TRIPLE:
+      {
+        curr_window_.size=cv::Size(round(vsize.width/4),vsize.height);
+        curr_window_.name="CURRENT IMAGE";
+        curr_window_.pos=cv::Point2f(vsize.width/5,0);
+        curr_window_.display_window=true;
 
-  next_window_.size=cv::Size(round(vsize.width/4),round(vsize.height/2));
-  next_window_.name="NEXT IMAGE";
-  next_window_.pos=cv::Point2f(1300,525);
+        prev_window_.size=cv::Size(round(vsize.width/4),round(vsize.height/2));
+        prev_window_.name="PREVIOUS IMAGE";
+        prev_window_.pos=cv::Point2f(1300,0);
+
+        next_window_.size=cv::Size(round(vsize.width/4),round(vsize.height/2));
+        next_window_.name="NEXT IMAGE";
+        next_window_.pos=cv::Point2f(1300,525);
+        break;
+      }
+    case FULLSCREEN:
+      {
+        curr_window_.size=vsize;
+        curr_window_.name="CURRENT IMAGE";
+        curr_window_.pos=cv::Point2f(0,0);
+        curr_window_.display_window=true;
+        // prev_window_.size=cv::Size(round(vsize.width/4),round(vsize.height/2));
+        // prev_window_.name="PREVIOUS IMAGE";
+        // prev_window_.pos=cv::Point2f(1300,0);
+        prev_window_.display_window=false;
+
+        //next_window_.size=cv::Size(round(vsize.width/4),round(vsize.height/2));
+        //next_window_.name="NEXT IMAGE";
+        //next_window_.pos=cv::Point2f(1300,525);
+        next_window_.display_window=false;
+        break;
+      }
+
+    default:
+      {
+        std::cout<<"viewer Mode not supported"<<std::endl;
+        break;
+      }
+  }
 
 
 }
@@ -127,45 +159,51 @@ void Viewer::applyRotation(cv::Mat& img,int& ctr)
 void Viewer::display(cv::Mat curr_file,cv::Mat prev_file,cv::Mat next_file)
 {
 
+  //------------------make diplay operations for current window
 
-    fit_img(curr_file,curr_window_.size);
-    fit_img(prev_file,prev_window_.size);
-    fit_img(next_file,next_window_.size);
+    if(curr_window_.display_window)
+       {
+          fit_img(curr_file,curr_window_.size);
+          applyRotation(curr_file,curr_ctr_);
+          overlayRating(curr_file);
+          cv::namedWindow(curr_window_.name);
+          cv::moveWindow(curr_window_.name,curr_window_.pos.x,curr_window_.pos.y);
+          //cv::resizeWindow(curr_window_.name,curr_window_.size.width,curr_window_.size.height);
+          cv::imshow(curr_window_.name,curr_file);
+       }
+
+    if(prev_window_.display_window)
+    {
+
+      //------------------make diplay operations for previous window
+        fit_img(prev_file,prev_window_.size);
+        applyRotation(prev_file,prev_ctr_);
+        cv::namedWindow(prev_window_.name);
+        cv::moveWindow(prev_window_.name,curr_window_.pos.x-(prev_file.cols+10),0);
+        //cv::resizeWindow(prev_window_.name,prev_window_.size.width,prev_window_.size.height);
+        cv::imshow(prev_window_.name,prev_file);
+    }
 
 
-    applyRotation(curr_file,curr_ctr_);
-    applyRotation(prev_file,prev_ctr_);
-    applyRotation(next_file,next_ctr_);
+    if(next_window_.display_window)
+    {
+      //------------------make diplay operations for next window
+ 
+      fit_img(next_file,next_window_.size);
+      applyRotation(next_file,next_ctr_);
+      cv::namedWindow(next_window_.name);
+      cv::moveWindow(next_window_.name,curr_window_.pos.x+(curr_file.cols+10),0);
+      //cv::resizeWindow(next_window_.name,next_window_.size.width,next_window_.size.height);
+      cv::imshow(next_window_.name,next_file);
 
-    overlayRating(curr_file);
+    }
 
-    cv::namedWindow(curr_window_.name);
-    cv::moveWindow(curr_window_.name,curr_window_.pos.x,curr_window_.pos.y);
-    //cv::resizeWindow(curr_window_.name,curr_window_.size.width,curr_window_.size.height);
-    cv::imshow(curr_window_.name,curr_file);
 
-    cv::namedWindow(prev_window_.name);
-    cv::moveWindow(prev_window_.name,curr_window_.pos.x-(prev_file.cols+10),0);
-    //cv::resizeWindow(prev_window_.name,prev_window_.size.width,prev_window_.size.height);
-    cv::imshow(prev_window_.name,prev_file);
-
-    cv::namedWindow(next_window_.name);
-    cv::moveWindow(next_window_.name,curr_window_.pos.x+(curr_file.cols+10),0);
-    //cv::resizeWindow(next_window_.name,next_window_.size.width,next_window_.size.height);
-    cv::imshow(next_window_.name,next_file);
+    //  parse keys
 
     int key;
     key=cv::waitKey(0);
-    //std::cout<<key<<std::endl;
     parseKey(key);
-
-
-    //cv::namedWindow(next_window_.name);
-    //cv::namedWindow(prev_window_.name);
-
-
-
-
 
 
 }

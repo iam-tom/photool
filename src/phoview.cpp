@@ -153,9 +153,10 @@ i++;
   }
 
   
-  cv::Size vsize=cv::Size(1366,768);
-  //cv::Size vsize=cv::Size(1920,1080);
-  Viewer viewer(vsize);
+  //cv::Size vsize=cv::Size(1366,768);
+  cv::Size vsize=cv::Size(1920,1080);
+  //cv::Size vsize=cv::Size(2500,1500);
+  Viewer viewer(vsize,Viewer::FULLSCREEN);
 
   //boost::filesystem::path testpath="data/test.xml";
   viewer.load_image_list(img_list);

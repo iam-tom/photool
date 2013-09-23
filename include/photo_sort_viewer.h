@@ -18,14 +18,20 @@ class Viewer
       ROT_CW,
       ROT_CCW,
     };
+    enum MODE
+    {
+      FULLSCREEN,
+      TRIPLE,
+    };
     struct window{
       std::string name;
       cv::Size size;
       cv::Point2f pos;
+      bool display_window;
     };
 
     Viewer();
-    Viewer(cv::Size& screen_size);
+    Viewer(cv::Size& screen_size,Viewer::MODE mode);
     virtual ~Viewer(){};
 
     void run();
