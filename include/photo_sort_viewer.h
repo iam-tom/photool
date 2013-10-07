@@ -44,7 +44,7 @@ class Viewer
 
     protected:
     void fit_img(cv::Mat& img,cv::Size& win_size);
-    void display(cv::Mat curr_img,cv::Mat prev_img,cv::Mat next_img);
+    void display(cv::Mat& curr_img,cv::Mat& prev_img,cv::Mat& next_img);
     void parseKey(int& key);
     void navigate(CMD cmd);
     void rate(int rating);

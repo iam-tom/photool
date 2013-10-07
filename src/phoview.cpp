@@ -153,8 +153,8 @@ i++;
   }
 
   
-  //cv::Size vsize=cv::Size(1366,768);
-  cv::Size vsize=cv::Size(1920,1080);
+  cv::Size vsize=cv::Size(1366,768);
+  //cv::Size vsize=cv::Size(1920,1080);
   //cv::Size vsize=cv::Size(2500,1500);
   Viewer viewer(vsize,Viewer::FULLSCREEN);
 
