@@ -40,18 +40,20 @@ Viewer::Viewer(cv::Size& vsize,Viewer::MODE mode)
   {
     case TRIPLE:
       {
-        curr_window_.size=cv::Size(round(vsize.width/4),vsize.height-WINDOW_OFFSET);
+        curr_window_.size=cv::Size(round(vsize.width/2),vsize.height-WINDOW_OFFSET);
         curr_window_.name="CURRENT IMAGE";
-        curr_window_.pos=cv::Point2f(vsize.width/5,0);
+        curr_window_.pos=cv::Point2f(round(vsize.width/4),0);
         curr_window_.display_window=true;
 
         prev_window_.size=cv::Size(round(vsize.width/4),(round(vsize.height/2))-WINDOW_OFFSET);
         prev_window_.name="PREVIOUS IMAGE";
         prev_window_.pos=cv::Point2f(1300,0);
+        prev_window_.display_window=true;
 
         next_window_.size=cv::Size(round(vsize.width/4),(round(vsize.height/2))-80);
         next_window_.name="NEXT IMAGE";
-        next_window_.pos=cv::Point2f(1300,525);
+        next_window_.pos=cv::Point2f(1300,200);
+        next_window_.display_window=true;
         break;
       }
     case FULLSCREEN:
@@ -119,7 +121,7 @@ void Viewer::overlayRating(cv::Mat& img)
   }
   int fontFace = cv::FONT_HERSHEY_PLAIN;
   double fontScale = 3;
-  int thickness = 1;
+  int thickness = 2;
   cv::Point textOrg(0, img.rows-50);
   cv::putText(img, rating, textOrg, fontFace, fontScale, cv::Scalar::all(255), thickness,1);
 }
@@ -161,10 +163,12 @@ void Viewer::display(cv::Mat& curr_file,cv::Mat& prev_file,cv::Mat& next_file)
 {
 
   //------------------make diplay operations for current window
+      cv::Mat n_f;
+      cv::Mat c_f;
+      cv::Mat p_f;
 
     if(curr_window_.display_window)
        {
-          cv::Mat c_f;
           curr_file.copyTo(c_f);
 
 
@@ -179,14 +183,13 @@ void Viewer::display(cv::Mat& curr_file,cv::Mat& prev_file,cv::Mat& next_file)
 
     if(prev_window_.display_window)
     {
-        cv::Mat p_f;
-        curr_file.copyTo(p_f);
+        prev_file.copyTo(p_f);
 
       //------------------make diplay operations for previous window
         fit_img(p_f,prev_window_.size);
         applyRotation(p_f,prev_ctr_);
         cv::namedWindow(prev_window_.name);
-        cv::moveWindow(prev_window_.name,curr_window_.pos.x-(prev_file.cols+10),0);
+        cv::moveWindow(prev_window_.name,curr_window_.pos.x-(p_f.cols+10),0);
         //cv::resizeWindow(prev_window_.name,prev_window_.size.width,prev_window_.size.height);
         cv::imshow(prev_window_.name,p_f);
     }
@@ -194,14 +197,14 @@ void Viewer::display(cv::Mat& curr_file,cv::Mat& prev_file,cv::Mat& next_file)
 
     if(next_window_.display_window)
     {
-      cv::Mat n_f;
-      curr_file.copyTo(n_f);
+      next_file.copyTo(n_f);
       //------------------make diplay operations for next window
  
       fit_img(n_f,next_window_.size);
       applyRotation(n_f,next_ctr_);
       cv::namedWindow(next_window_.name);
-      cv::moveWindow(next_window_.name,curr_window_.pos.x+(curr_file.cols+10),0);
+      cv::moveWindow(next_window_.name,curr_window_.pos.x+(c_f.cols+10),0);
+      std::cout<<"position next window:"<<curr_window_.pos.x+(c_f.cols+10)<<std::endl;
       //cv::resizeWindow(next_window_.name,next_window_.size.width,next_window_.size.height);
       cv::imshow(next_window_.name,n_f);
 
