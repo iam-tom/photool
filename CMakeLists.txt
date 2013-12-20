@@ -5,6 +5,12 @@ link_directories (${DIR}/src/utils /opt/local/lib ${DIR}/lib)
 set(EXECUTABLE_OUTPUT_PATH bin)
 set(LIBRARY_OUTPUT_PATH lib)
 
+find_package(OpenMP)
+if (OPENMP_FOUND)
+      set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif()
+
 
 FIND_PACKAGE(Boost COMPONENTS system filesystem REQUIRED)
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR}  )

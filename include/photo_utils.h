@@ -7,7 +7,7 @@
 #include<ctime>
 
 
-bool get_img_list(boost::filesystem::path& path,std::vector<std::string>& img_list);
+bool get_img_list(boost::filesystem::path& path,std::vector<boost::filesystem::path>& img_list);
 
-bool get_img_list(boost::filesystem::path& path,std::vector<std::string> filetypes,std::vector<std::string>&img_list);
+bool get_img_list(boost::filesystem::path& path,std::vector<std::string> filetypes,std::vector<boost::filesystem::path>&img_list);
 

@@ -1,20 +1,21 @@
 #include<photo_utils.h>
 
-bool get_img_list(boost::filesystem::path& path,std::vector<std::string>& img_list)
+bool get_img_list(boost::filesystem::path& path,std::vector<boost::filesystem::path>& img_list)
 {
   std::vector<std::string>supported_filetypes;
   // known filetypes
   supported_filetypes.push_back(".JPG");
-  supported_filetypes.push_back("jpg");
-  supported_filetypes.push_back("PNG");
-  supported_filetypes.push_back("png");
-  supported_filetypes.push_back("png");
-  supported_filetypes.push_back("png");
+  supported_filetypes.push_back(".jpg");
+  supported_filetypes.push_back(".PNG");
+  supported_filetypes.push_back(".png");
+  supported_filetypes.push_back(".png");
+  supported_filetypes.push_back(".png");
+  supported_filetypes.push_back(".CR2");
 
   get_img_list(path,supported_filetypes,img_list);
 }
 
-bool get_img_list(boost::filesystem::path& path,std::vector<std::string> supported_filetypes,std::vector<std::string>&img_list)
+bool get_img_list(boost::filesystem::path& path,std::vector<std::string> supported_filetypes,std::vector<boost::filesystem::path>&img_list)
 {
   std::vector<boost::filesystem::path> input_files;
    std::map<boost::posix_time::ptime, boost::filesystem::path> files;
