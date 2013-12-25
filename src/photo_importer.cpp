@@ -1,4 +1,6 @@
 #include"photo_importer.h"
+#include<omp.h>
+
 
 photo_importer::~photo_importer()
 {
@@ -9,6 +11,7 @@ bool photo_importer::make_folders(boost::filesystem::path& base_folder)
 
    raw_folder_=base_folder/"raw";
    jpg_folder_=base_folder/"jpg";
+   dev_folder_=base_folder/"dev";
    snapshot_folder_=base_folder/"snapshot";
 
 
@@ -17,6 +20,7 @@ bool photo_importer::make_folders(boost::filesystem::path& base_folder)
         if(!boost::filesystem::is_directory(raw_folder_))boost::filesystem::create_directory(raw_folder_);
         if(!boost::filesystem::is_directory(jpg_folder_))boost::filesystem::create_directory(jpg_folder_);
         if(!boost::filesystem::is_directory(snapshot_folder_))boost::filesystem::create_directory(snapshot_folder_);
+        if(!boost::filesystem::is_directory(dev_folder_))boost::filesystem::create_directory(dev_folder_);
 
       }
 
@@ -51,8 +55,20 @@ bool photo_importer::process()
   for(int i=0;i<img_list_.size();++i)
   {
     std::string ext=img_list_[i].extension().c_str();
-    if(ext==".JPG" || ext==".jpg") handle_jpg(img_list_[i]);
-    else if(ext==".CR2" || ext=="raw") handle_raw(img_list_[i]);
+    if(ext==".JPG" || ext==".jpg")
+    {
+      handle_jpg(img_list_[i]);
+      continue;
+    }
+    else if(ext==".CR2" || ext=="raw")
+    {
+      handle_raw(img_list_[i]);
+      continue;
+    }
+    else
+    {
+      continue;
+    }
 
     if(vis_)
     {
@@ -68,7 +84,7 @@ bool photo_importer::process()
 bool photo_importer::handle_jpg(boost::filesystem::path& file)
 {
   cv::Mat img_full;
-  //std::cout<<"loading : "<<file.c_str()<<std::endl;
+  std::cout<<"loading : "<<file.c_str()<<std::endl;
   if(boost::filesystem::exists(file))img_full=cv::imread(file.c_str());
   // landscape
   cv::Size snapshot_size;
@@ -93,7 +109,7 @@ bool photo_importer::handle_jpg(boost::filesystem::path& file)
 }
 bool photo_importer::handle_raw(boost::filesystem::path& file)
 {
-  //std::cout<<"loading : "<<file.c_str()<<std::endl;
+  std::cout<<"loading : "<<file.c_str()<<std::endl;
   //dump files
   boost::filesystem::path f_raw=raw_folder_/file.filename();
   boost::filesystem::copy_file(file,f_raw);

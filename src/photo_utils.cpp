@@ -18,35 +18,39 @@ bool get_img_list(boost::filesystem::path& path,std::vector<boost::filesystem::p
 bool get_img_list(boost::filesystem::path& path,std::vector<std::string> supported_filetypes,std::vector<boost::filesystem::path>&img_list)
 {
   std::vector<boost::filesystem::path> input_files;
-   std::map<boost::posix_time::ptime, boost::filesystem::path> files;
-   for (boost::filesystem::directory_iterator iter(path); iter != boost::filesystem::directory_iterator();
-   ++iter)
-   {
-      const boost::filesystem::path& cur_path = iter->path();
-      if (boost::filesystem::is_regular_file(cur_path))
-      {
-         boost::system::error_code error;
-         std::time_t last_write = boost::filesystem::last_write_time(cur_path, error);
-         if (error)
-         {
-            std::cerr << error.message() << std::endl;
-            continue;
-         }
-         boost::posix_time::ptime lw_time = boost::posix_time::from_time_t(last_write);
-         files[lw_time] = cur_path;
-      }
-   }
+  if(boost::filesystem::is_directory(path))
+  {
+  copy(boost::filesystem::directory_iterator(path), boost::filesystem::directory_iterator(), std::back_inserter(input_files));
+  }
 
- // multimap iterator
-std::map<boost::posix_time::ptime, boost::filesystem::path>::iterator pos;
-
-// print the data
-int i=0;
-for(pos = files.begin(); pos != files.end(); ++pos)
-{
-input_files.push_back(pos->second);
-i++;
-}
+//  std::vector<boost::filesystem::path> input_files;
+//   std::map<boost::posix_time::ptime, boost::filesystem::path> files;
+//   for (boost::filesystem::directory_iterator iter(path); iter != boost::filesystem::directory_iterator();
+//   ++iter)
+//   {
+//      const boost::filesystem::path& cur_path = iter->path();
+//      if (boost::filesystem::is_regular_file(cur_path))
+//      {
+//         boost::system::error_code error;
+//         std::time_t last_write = boost::filesystem::last_write_time(cur_path, error);
+//         if (error)
+//         {
+//            std::cerr << error.message() << std::endl;
+//            continue;
+//         }
+//         boost::posix_time::ptime lw_time = boost::posix_time::from_time_t(last_write);
+//         files[lw_time] = cur_path;
+//      }
+//   }
+//
+// // multimap iterator
+//std::map<boost::posix_time::ptime, boost::filesystem::path>::iterator pos;
+//
+//// print the data
+//for(pos = files.begin(); pos != files.end(); ++pos)
+//{
+//input_files.push_back(pos->second);
+//}
 
 
 
