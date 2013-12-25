@@ -7,6 +7,8 @@
 
 #include<boost/filesystem.hpp>
 #include<boost/lexical_cast.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/posix_time/posix_time_io.hpp>
 
 class Viewer
 {
@@ -42,7 +44,15 @@ class Viewer
     void filter(int val);
     void setStart(int no);
 
+
+    void activate_crash_recovery(boost::filesystem::path & crash_file_path);
+
     protected:
+    void save_crash_file();
+    void load_crash_file(int& counter);
+    boost::filesystem::path* crash_file_path_;
+    boost::posix_time::time_facet* viewer_time_;
+
     void fit_img(cv::Mat& img,cv::Size& win_size);
     void display(cv::Mat& curr_img,cv::Mat& prev_img,cv::Mat& next_img);
     void parseKey(int& key);
@@ -66,6 +76,7 @@ class Viewer
 
     cv::Mat stop_file_;
     int num_images_;
+    bool debug_;
 
 
 

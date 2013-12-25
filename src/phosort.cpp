@@ -31,6 +31,7 @@ int main(int argc, const char *argv[])
   boost::filesystem::path input_dir(argv[1]);
   std::vector<boost::filesystem::path> input_files;
   boost::filesystem::path infofile_path=input_dir/"tags.xml";
+  boost::filesystem::path crash_path=input_dir/"crash.xml";
   std::vector<std::string>supported_filetypes;
   // known filetypes
   supported_filetypes.push_back(".JPG");
@@ -168,6 +169,7 @@ int main(int argc, const char *argv[])
   viewer.load_image_list(img_list);
   viewer.load_tag_list(infofile_path);
   viewer.filter(filter_val);
+  viewer.activate_crash_recovery(crash_path);
   viewer.setStart(start_val);
   viewer.run();
   std::cout<<"saving list"<<std::endl;

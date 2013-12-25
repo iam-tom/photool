@@ -2,8 +2,10 @@
 
 
 Viewer::Viewer()
-{ std::cout<<"instantiating viever"<<std::endl;
-
+{ 
+  std::cout<<"instantiating viever"<<std::endl;
+  debug_=false;
+  viewer_time_ = new boost::posix_time::time_facet("%d-%b-%Y-%H-%M-%S");
 
 
 
@@ -23,6 +25,7 @@ Viewer::Viewer()
   next_window_.size=cv::Size(620,475);
   next_window_.name="NEXT IMAGE";
   next_window_.pos=cv::Point2f(1300,525);
+
 }
 
 
@@ -98,12 +101,37 @@ return true;
 void Viewer::run()
 {
   // start at beginning of list
-  std::string curr_path=img_list_[curr_ctr_].c_str();
-  std::string next_path=img_list_[next_ctr_].c_str();
+  std::string curr_path;
+  std::string next_path;
+  std::string prev_path;
+
+   if(prev_ctr_>=0 && next_ctr_<img_list_.size())
+   {
+    curr_path=img_list_[curr_ctr_].c_str();
+    next_path=img_list_[next_ctr_].c_str();
+    prev_path=img_list_[prev_ctr_].c_str();
+
+    curr_file_=cv::imread(curr_path,-1);
+    prev_file_=cv::imread(prev_path,-1);
+    next_file_=cv::imread(next_path,-1);
+   }
+  else if(prev_ctr_<0 && next_ctr_<img_list_.size())
+  {
+   curr_path=img_list_[curr_ctr_].c_str();
+   next_path=img_list_[next_ctr_].c_str();
 
    curr_file_=cv::imread(curr_path,-1);
-   prev_file_=stop_file_;
    next_file_=cv::imread(next_path,-1);
+   prev_file_=stop_file_;
+  }
+  else if(prev_ctr_>=0 && next_ctr_>=img_list_.size())
+  {
+   curr_path=img_list_[curr_ctr_].c_str();
+   prev_path=img_list_[prev_ctr_].c_str();
+   curr_file_=cv::imread(curr_path,-1);
+   prev_file_=cv::imread(prev_path,-1);
+   next_file_=stop_file_;
+  }
 
   //
   display(curr_file_,prev_file_,next_file_);
@@ -204,7 +232,7 @@ void Viewer::display(cv::Mat& curr_file,cv::Mat& prev_file,cv::Mat& next_file)
       applyRotation(n_f,next_ctr_);
       cv::namedWindow(next_window_.name);
       cv::moveWindow(next_window_.name,curr_window_.pos.x+(c_f.cols+10),0);
-      std::cout<<"position next window:"<<curr_window_.pos.x+(c_f.cols+10)<<std::endl;
+      if(debug_)std::cout<<"position next window:"<<curr_window_.pos.x+(c_f.cols+10)<<std::endl;
       //cv::resizeWindow(next_window_.name,next_window_.size.width,next_window_.size.height);
       cv::imshow(next_window_.name,n_f);
 
@@ -361,14 +389,56 @@ void Viewer::navigate(CMD cmd)
         }
     }
     // display updated files
-    std::cout<<"PREV CTR="<<prev_ctr_<<std::endl;
-    std::cout<<"CURR CTR="<<curr_ctr_<<std::endl;
-    std::cout<<"NEXT CTR="<<next_ctr_<<std::endl;
-    std::cout<<"-----------------"<<std::endl;
+    if(debug_)std::cout<<"PREV CTR="<<prev_ctr_<<std::endl;
+    if(debug_)std::cout<<"CURR CTR="<<curr_ctr_<<std::endl;
+    if(debug_)std::cout<<"NEXT CTR="<<next_ctr_<<std::endl;
+    if(debug_)std::cout<<"-----------------"<<std::endl;
 
-    display(curr_file_,prev_file_,next_file_);
+    //save counter to crash file to avoid haveing to start all over again in
+    //case of crash
+    this->save_crash_file();
+    this->display(curr_file_,prev_file_,next_file_);
 }
 
+void Viewer::activate_crash_recovery(boost::filesystem::path& crash_file_path)
+{
+  
+  crash_file_path_=new boost::filesystem::path(crash_file_path);
+}
+void Viewer::save_crash_file()
+{
+
+cv::FileStorage fs;
+fs.open(crash_file_path_->c_str(), cv::FileStorage::WRITE);
+std::cout<<viewer_time_<<std::endl;
+if(fs.isOpened())
+{
+  fs<<"date"<<44;
+  fs<<"counter"<<curr_ctr_;
+
+  fs.release();
+}
+
+}
+void Viewer::load_crash_file(int & counter)
+{
+
+  if(crash_file_path_)
+  {
+    if(boost::filesystem::is_regular(*crash_file_path_))
+    {
+      std::cout<<"found crash file - start where left off(y/n)?"<<std::endl;
+      char answer;
+      std::cin>>answer;
+      if(answer=='y')
+      {
+      cv::FileStorage fs(crash_file_path_->c_str(), cv::FileStorage::READ);
+
+      counter=(int)fs["counter"];
+      }
+    }
+  }
+}
 void Viewer::load_tag_list(boost::filesystem::path& file)
 {
 
@@ -582,6 +652,8 @@ void Viewer::fit_img(cv::Mat& img,cv::Size& win_size)
 }
 void Viewer::setStart(int no)
 {
+this->load_crash_file(no);
+std::cout<<"loaded "<< no<<std::endl;
 curr_ctr_=no;
 prev_ctr_=no-1;
 next_ctr_=no+1;
