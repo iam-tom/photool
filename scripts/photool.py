@@ -17,6 +17,7 @@ class Photool:
     binary_prefix="photool-"
     self.binaries={ "photool-importer":os.path.join(root_dir,binary_dir,binary_prefix+"importer"),
                     "photool-phoview":os.path.join(root_dir,binary_dir,binary_prefix+"phoview"),
+                    "photool-copy2dev":os.path.join(root_dir,binary_dir,binary_prefix+"copy2dev"),
                     "photool-phosort":os.path.join(root_dir,binary_dir,binary_prefix+"phosort")}
     binaries_valid =self.verify_binaries()
 
@@ -39,6 +40,8 @@ class Photool:
   def verify_binaries(self):
     binaries_valid=True
     binaries_valid=os.path.exists(self.binaries["photool-importer"])
+    if(binaries_valid==False): return False
+    binaries_valid=os.path.exists(self.binaries["photool-copy2dev"])
     if(binaries_valid==False): return False
     binaries_valid=os.path.exists(self.binaries["photool-phoview"])
     if(binaries_valid==False): return False
@@ -73,6 +76,12 @@ class Photool:
       if(answer is "y"):
         subprocess.call([self.binaries["photool-phoview"],self.dst_snapshot_dir])
 
+  def run_filter(self,val):
+      answer=raw_input("copy images rated 3 to dev folder  (y/n)")
+      if(answer is "y"):
+        subprocess.call([self.binaries["photool-copy2dev"],self.dst_dev_dir])
+
+
 
 
 
@@ -96,6 +105,7 @@ if __name__=="__main__":
   pt.run_import()
 
   pt.run_viewer()
+  pt.run_filter(3)
 
 
 

@@ -34,3 +34,6 @@ target_link_libraries(photool-watermarker opencv_core opencv_imgproc opencv_high
 
 add_executable(photool-importer src/photo_importer.cpp)
 target_link_libraries(photool-importer photo_utils opencv_core opencv_imgproc opencv_highgui ${Boost_LIBRARIES} )
+
+add_executable(photool-copy2dev src/copy2dev.cpp)
+target_link_libraries(photool-copy2dev photo_utils opencv_core  opencv_highgui ${Boost_LIBRARIES} )
