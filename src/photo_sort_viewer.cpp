@@ -255,6 +255,7 @@ void Viewer::navigate(CMD cmd)
       case NEXT:
         {
 
+          // if stop image is already reached
           if(next_ctr_==num_images_)
           {
           }
@@ -308,9 +309,11 @@ void Viewer::navigate(CMD cmd)
 
           if(prev_ctr_<0)
           {
+            std::cout<<" case 2"<<std::endl;
           }
           else if(prev_ctr_==0)
           {
+            std::cout<<" case 1"<<std::endl;
             next_file_=curr_file_;
             curr_file_=prev_file_;
             prev_file_=stop_file_;
@@ -321,16 +324,18 @@ void Viewer::navigate(CMD cmd)
           }
           else
           {
+            std::cout<<" case 3"<<std::endl;
             next_ctr_=curr_ctr_;
             curr_ctr_=prev_ctr_;
             prev_ctr_--;
 
             // filter images
             std::string prev_path;
-            while(prev_ctr_>0)
+            while(prev_ctr_>=0)
             {
               if(filter_list_[prev_ctr_]==false)
               {
+            std::cout<<" case 4"<<std::endl;
                 prev_path=img_list_[prev_ctr_].c_str();
                 next_file_=curr_file_;
                 curr_file_=prev_file_;
@@ -340,6 +345,7 @@ void Viewer::navigate(CMD cmd)
               else prev_ctr_--;
               if(prev_ctr_==0)
               {
+            std::cout<<" case 5"<<std::endl;
                 next_file_=curr_file_;
                 curr_file_=prev_file_;
                 prev_file_=stop_file_;
@@ -558,11 +564,9 @@ void Viewer::parseKey(int& key)
 }
 void Viewer::fit_img(cv::Mat& img,cv::Size& win_size)
    {
-     std::cout<<"win size"<<win_size.width<<" "<<win_size.height<<std::endl;
      float longside,limit;
      if(img.cols>img.rows)
      {
-       std::cout<<"rows> cols"<<std::endl;
        longside=img.rows;
        limit=(float)win_size.height;
      }
