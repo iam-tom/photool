@@ -5,7 +5,8 @@ Viewer::Viewer()
 { 
   std::cout<<"instantiating viever"<<std::endl;
   debug_=false;
-  viewer_time_ = new boost::posix_time::time_facet("%d-%b-%Y-%H-%M-%S");
+  crash_recovery_=false;
+  crash_file_path_=NULL;
 
 
 
@@ -32,6 +33,8 @@ Viewer::Viewer()
 Viewer::Viewer(cv::Size& vsize,Viewer::MODE mode)
 {
   //std::cout<<"variable screen size not yet available"<<std::endl;
+  crash_recovery_=false;
+  crash_file_path_=NULL;
   stop_file_=cv::imread("/home/tom/workspace/cpp/photool/data/stop.png",-1);
   curr_ctr_=0;
   prev_ctr_=-1;
@@ -337,11 +340,9 @@ void Viewer::navigate(CMD cmd)
 
           if(prev_ctr_<0)
           {
-            std::cout<<" case 2"<<std::endl;
           }
           else if(prev_ctr_==0)
           {
-            std::cout<<" case 1"<<std::endl;
             next_file_=curr_file_;
             curr_file_=prev_file_;
             prev_file_=stop_file_;
@@ -352,7 +353,6 @@ void Viewer::navigate(CMD cmd)
           }
           else
           {
-            std::cout<<" case 3"<<std::endl;
             next_ctr_=curr_ctr_;
             curr_ctr_=prev_ctr_;
             prev_ctr_--;
@@ -363,7 +363,6 @@ void Viewer::navigate(CMD cmd)
             {
               if(filter_list_[prev_ctr_]==false)
               {
-            std::cout<<" case 4"<<std::endl;
                 prev_path=img_list_[prev_ctr_].c_str();
                 next_file_=curr_file_;
                 curr_file_=prev_file_;
@@ -373,7 +372,6 @@ void Viewer::navigate(CMD cmd)
               else prev_ctr_--;
               if(prev_ctr_==0)
               {
-            std::cout<<" case 5"<<std::endl;
                 next_file_=curr_file_;
                 curr_file_=prev_file_;
                 prev_file_=stop_file_;
@@ -396,7 +394,7 @@ void Viewer::navigate(CMD cmd)
 
     //save counter to crash file to avoid haveing to start all over again in
     //case of crash
-    this->save_crash_file();
+    if(crash_recovery_)this->save_crash_file();
     this->display(curr_file_,prev_file_,next_file_);
 }
 
@@ -404,16 +402,15 @@ void Viewer::activate_crash_recovery(boost::filesystem::path& crash_file_path)
 {
   
   crash_file_path_=new boost::filesystem::path(crash_file_path);
+  crash_recovery_=true;
 }
 void Viewer::save_crash_file()
 {
 
 cv::FileStorage fs;
 fs.open(crash_file_path_->c_str(), cv::FileStorage::WRITE);
-std::cout<<viewer_time_<<std::endl;
 if(fs.isOpened())
 {
-  fs<<"date"<<44;
   fs<<"counter"<<curr_ctr_;
 
   fs.release();
@@ -423,7 +420,7 @@ if(fs.isOpened())
 void Viewer::load_crash_file(int & counter)
 {
 
-  if(crash_file_path_)
+  if(crash_recovery_)
   {
     if(boost::filesystem::is_regular(*crash_file_path_))
     {
@@ -652,7 +649,10 @@ void Viewer::fit_img(cv::Mat& img,cv::Size& win_size)
 }
 void Viewer::setStart(int no)
 {
+if(crash_recovery_)
+{
 this->load_crash_file(no);
+}
 std::cout<<"loaded "<< no<<std::endl;
 curr_ctr_=no;
 prev_ctr_=no-1;

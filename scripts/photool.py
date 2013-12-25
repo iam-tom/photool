@@ -74,7 +74,7 @@ class Photool:
   def run_viewer(self):
       answer=raw_input("view snapshots (y/n)")
       if(answer is "y"):
-        subprocess.call([self.binaries["photool-phoview"],self.dst_snapshot_dir])
+        subprocess.call([self.binaries["photool-phosort"],self.dst_snapshot_dir])
         #subprocess.call([self.binaries["photool-phosort"],self.dst_snapshot_dir])
 
   def run_filter(self,val):

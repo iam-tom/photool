@@ -9,7 +9,6 @@
 #include"photo_utils.h"
 void write_to_dir(boost::filesystem::path dir,std::string filename,cv::Mat& img)
   {
-      
       dir/=filename;
       cv::imwrite(dir.c_str(),img);
   }

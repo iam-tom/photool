@@ -34,7 +34,10 @@ class Viewer
 
     Viewer();
     Viewer(cv::Size& screen_size,Viewer::MODE mode);
-    virtual ~Viewer(){};
+    virtual ~Viewer()
+    {
+      if(crash_file_path_)delete crash_file_path_;
+    };
 
     void run();
     bool load_image_list(std::vector<boost::filesystem::path>& img_list);
@@ -52,6 +55,7 @@ class Viewer
     void load_crash_file(int& counter);
     boost::filesystem::path* crash_file_path_;
     boost::posix_time::time_facet* viewer_time_;
+    bool crash_recovery_;
 
     void fit_img(cv::Mat& img,cv::Size& win_size);
     void display(cv::Mat& curr_img,cv::Mat& prev_img,cv::Mat& next_img);
