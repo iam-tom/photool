@@ -75,11 +75,12 @@ class Photool:
       answer=raw_input("view snapshots (y/n)")
       if(answer is "y"):
         subprocess.call([self.binaries["photool-phoview"],self.dst_snapshot_dir])
+        #subprocess.call([self.binaries["photool-phosort"],self.dst_snapshot_dir])
 
   def run_filter(self,val):
       answer=raw_input("copy images rated 3 to dev folder  (y/n)")
       if(answer is "y"):
-        subprocess.call([self.binaries["photool-copy2dev"],self.dst_dev_dir])
+        subprocess.call([self.binaries["photool-copy2dev"],self.dst_dir,str(val)])
 
 
 

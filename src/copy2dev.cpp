@@ -33,6 +33,7 @@ std::string file=img_list[i].stem().c_str();
 int rating=fs[file]["rating"];
 rating_list[i]=rating;
 boost::filesystem::path src_path_raw,src_path_jpg,dst_path_raw,dst_path_jpg;
+std::cout<<"rating is="<<rating<<std::endl;
 if(rating>=filter_val)
 {
   std::string file_jpg=file+".JPG";
@@ -43,8 +44,8 @@ if(rating>=filter_val)
   dst_path_raw=path_dev/file_raw;
   dst_path_jpg=path_dev/file_jpg;
 
-  if(!boost::filesystem::is_regular(src_path_jpg))boost::filesystem::copy_file(src_path_jpg,dst_path_jpg);
-  if(!boost::filesystem::is_regular(src_path_jpg))boost::filesystem::copy_file(src_path_raw,dst_path_raw);
+  if(boost::filesystem::is_regular(src_path_jpg) && !boost::filesystem::is_regular(dst_path_jpg)) boost::filesystem::copy_file(src_path_jpg,dst_path_jpg);
+  if(boost::filesystem::is_regular(src_path_jpg) && !boost::filesystem::is_regular(dst_path_raw)) boost::filesystem::copy_file(src_path_raw,dst_path_raw);
 }
 }
 fs.release();

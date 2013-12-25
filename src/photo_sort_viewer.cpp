@@ -7,7 +7,7 @@ Viewer::Viewer()
 
 
 
-  stop_file_=cv::imread("data/stop.png",-1);
+  stop_file_=cv::imread("/home/tom/workspace/cpp/photool/data/stop.png",-1);
   curr_ctr_=0;
   prev_ctr_=-1;
   next_ctr_=1;
@@ -29,7 +29,7 @@ Viewer::Viewer()
 Viewer::Viewer(cv::Size& vsize,Viewer::MODE mode)
 {
   //std::cout<<"variable screen size not yet available"<<std::endl;
-  stop_file_=cv::imread("data/stop.png",-1);
+  stop_file_=cv::imread("/home/tom/workspace/cpp/photool/data/stop.png",-1);
   curr_ctr_=0;
   prev_ctr_=-1;
   next_ctr_=1;
@@ -558,7 +558,7 @@ void Viewer::parseKey(int& key)
 }
 void Viewer::fit_img(cv::Mat& img,cv::Size& win_size)
    {
-
+     std::cout<<"win size"<<win_size.width<<" "<<win_size.height<<std::endl;
      float longside,limit;
      if(img.cols>img.rows)
      {
@@ -566,7 +566,7 @@ void Viewer::fit_img(cv::Mat& img,cv::Size& win_size)
        longside=img.rows;
        limit=(float)win_size.height;
      }
-     else 
+     else
      {
        longside=img.rows;
        limit=(float)win_size.height;

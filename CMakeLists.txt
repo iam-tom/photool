@@ -11,6 +11,7 @@ if (OPENMP_FOUND)
       set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
 endif()
 
+#set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -Wall")
 
 FIND_PACKAGE(Boost COMPONENTS system filesystem REQUIRED)
 INCLUDE_DIRECTORIES( ${Boost_INCLUDE_DIR}  )
@@ -24,10 +25,10 @@ target_link_libraries(photo_sort_viewer opencv_core opencv_imgproc opencv_highgu
 
 #########################################################
 add_executable(photool-phosort src/phosort.cpp)
-target_link_libraries(photool-phosort opencv_core opencv_imgproc opencv_highgui ${Boost_LIBRARIES} photo_sort_viewer)
+target_link_libraries(photool-phosort photo_utils opencv_core opencv_imgproc opencv_highgui ${Boost_LIBRARIES} photo_sort_viewer)
 
 add_executable(photool-phoview src/phoview.cpp)
-target_link_libraries(photool-phoview opencv_core opencv_imgproc opencv_highgui ${Boost_LIBRARIES} photo_sort_viewer)
+target_link_libraries(photool-phoview photo_utils opencv_core opencv_imgproc opencv_highgui ${Boost_LIBRARIES} photo_sort_viewer)
 
 add_executable(photool-watermarker src/watermarker.cpp)
 target_link_libraries(photool-watermarker opencv_core opencv_imgproc opencv_highgui ${Boost_LIBRARIES} )
