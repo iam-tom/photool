@@ -51,7 +51,7 @@ bool photo_importer::process()
   if(vis_&& img_list_.size()>0)progress_bar_ = new boost::progress_display(img_list_.size());
 
   //process in parallel
-#pragma omp parallel for
+////#pragma omp parallel for
   for(int i=0;i<img_list_.size();++i)
   {
     std::string ext=img_list_[i].extension().c_str();
@@ -88,10 +88,13 @@ bool photo_importer::handle_jpg(boost::filesystem::path& file)
   if(boost::filesystem::exists(file))img_full=cv::imread(file.c_str());
   // landscape
   cv::Size snapshot_size;
-  if(img_full.rows<img_full.cols) snapshot_size=cv::Size(1000,round((1000.0/img_full.cols)*img_full.rows));
+  if(img_full.rows<img_full.cols)
+  { std::cout<<"1"<<std::endl;snapshot_size=cv::Size(1000,round((1000.0/img_full.cols)*img_full.rows));}
 
-  if(img_full.rows>img_full.cols) snapshot_size=cv::Size(round(1000/img_full.rows*img_full.cols),1000);
+  if(img_full.rows>img_full.cols)
+  {std::cout<<"2"<<std::endl; snapshot_size=cv::Size(round((1000.0/img_full.rows)*img_full.cols),1000);}
 
+  std::cout<<"snapshot size: "<<snapshot_size.width<<" "<<snapshot_size.height<<std::endl;
   cv::Mat img_snapshot(snapshot_size,img_full.type());
   cv::resize(img_full,img_snapshot,snapshot_size);
 
