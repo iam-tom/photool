@@ -88,17 +88,30 @@ class Photool:
 
 
 if __name__=="__main__":
-  dst_dir="/media/Data/MEDIA/photography/"
-  src_dir=os.getcwd()
+  dst_dir_default="/media/Data/MEDIA/photography/"
+  src_dir_default=os.getcwd()
+
+  date=date.today()
+  date=str(date)
 
   pt=Photool()
   if(len(sys.argv)==1):
-    date=date.today()
-    date=str(date)
-    dst_dir=os.path.join(dst_dir,date)
+    dst_dir=os.path.join(dst_dir_default,date)
     #pt.set_target_dir
+    src_dir=src_dir_default
   elif(len(sys.argv)==2):
     dst_dir=sys.argv[1]
+    if( dst_dir=="."):
+      dst_dir=os.path.join(dst_dir_default,date)
+      src_dir=src_dir_default
+  elif(len(sys.argv)==3):
+    src_dir=sys.argv[1]
+    dst_dir=sys.argv[2]
+
+    if( src_dir=="."):
+      src_dir=os.path.join(os.getcwd())
+
+
     #dst_dir=os.path.join(dst_dir,sys.argv[1])
 
   pt.set_dst_dir(dst_dir)

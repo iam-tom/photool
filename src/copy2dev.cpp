@@ -45,7 +45,7 @@ if(rating>=filter_val)
   dst_path_jpg=path_dev/file_jpg;
 
   if(boost::filesystem::is_regular(src_path_jpg) && !boost::filesystem::is_regular(dst_path_jpg)) boost::filesystem::copy_file(src_path_jpg,dst_path_jpg);
-  if(boost::filesystem::is_regular(src_path_jpg) && !boost::filesystem::is_regular(dst_path_raw)) boost::filesystem::copy_file(src_path_raw,dst_path_raw);
+  if(boost::filesystem::is_regular(src_path_raw) && !boost::filesystem::is_regular(dst_path_raw)) boost::filesystem::copy_file(src_path_raw,dst_path_raw);
 }
 }
 fs.release();
